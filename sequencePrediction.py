@@ -265,68 +265,113 @@ def fit_nn(rnn):
     model.load_state_dict(torch.load(train_state['model_filename']))
     model = model.to(args.device)
 
-    ##############  OVER ENTIRE TEST SET ##############################################
-    # dataset.set_split('test')
-    # batch_generator = generate_batches(dataset,
-    #                               batch_size=args.batch_size,
-    #                               device=args.device)
+    ##############  OVER ENTIRE TEST SET (SETTING EACH COLUMN TO)##############################################
+
     # running_acc = 0.
-    # # running_loss = 0.
+    # running_loss = 0.
     # perplexity_character_dict ={}
     # accuracy_character_dict={}
     # # compute the output
-    # model.eval()
-    # enumerated = list(enumerate(batch_generator))
+    # # model.eval()
+    # # enumerated = list(enumerate(batch_generator))
+    # for m in range(1,20):
+    #   # print('OUTSIDE ENUM',i)
+    #   dataset.set_split('test')
+    #   batch_generator = generate_batches(dataset,
+    #                             batch_size=args.batch_size,
+    #                             device=args.device)
+    #   for batch_index, batch_dict in enumerate(batch_generator):
+    #       # for j in range(0,len(batch_dict['x_data'])):
 
-    # for i in range(1,20):
-    #     for batch_index, batch_dict in enumerated:
-    #     # for j in range(0,len(batch_dict['x_data'])):
-    #         y_pred = model(x_in=batch_dict['x_data'][:,0:i])
+    #       temp=np.array(torch.Tensor.clone(batch_dict['x_data'].cpu()))
+    #       for i in range(m,19):
+    #         for j in range(temp.shape[0]):
+    #           temp[j][i]=0
+    #         new_temp = torch.Tensor(temp).type(torch.LongTensor).to(args.device)
+    #         y_pred=model(x_in=new_temp)
+    #         # y_pred = model(x_in=batch_dict['x_data'][:,0:i])
+    #         # print('INSIDE ENUM',batch_index, len(batch_dict))
+    #         # print('INSIDE ENUM',i)
 
-    #           # compute the loss
-    #         loss = sequence_loss(y_pred, batch_dict['y_target'][:,0:i], mask_index)
+    #         # compute the loss
+    #         # loss = sequence_loss(y_pred, batch_dict['y_target'][:,0:i], mask_index)
+    #         loss = sequence_loss(y_pred, batch_dict['y_target'], mask_index)
 
     #         # compute the accuracy
     #         running_loss += (loss.item() - running_loss) / (batch_index + 1)
-    #         acc_t = compute_accuracy(y_pred, batch_dict['y_target'][:,0:i], mask_index)
+    #         # acc_t = compute_accuracy(y_pred, batch_dict['y_target'][:,0:i], mask_index)
+    #         acc_t = compute_accuracy(y_pred, batch_dict['y_target'], mask_index)
     #         running_acc += (acc_t - running_acc) / (batch_index + 1)
-    #     accuracy_character_dict[i] = running_acc
-    #     perplexity_character_dict[i] = torch.exp(torch.tensor(running_loss)).item()
+    #   accuracy_character_dict[m] = running_acc
+    #   perplexity_character_dict[m] = torch.exp(torch.tensor(running_loss)).item()
     # print(accuracy_character_dict)
     # print(perplexity_character_dict)
+
+    ##############  OVER ENTIRE TEST SET (SETTING EACH COLUMN TO)##############################################
+
+    ##############  OVER ENTIRE TEST SET ##############################################
+    dataset.set_split('test')
+    batch_generator = generate_batches(dataset,
+                                       batch_size=args.batch_size,
+                                       device=args.device)
+    running_acc = 0.
+    running_loss = 0.
+    perplexity_character_dict = {}
+    accuracy_character_dict = {}
+    # compute the output
+    model.eval()
+    enumerated = list(enumerate(batch_generator))
+
+    for i in range(1, 20):
+        for batch_index, batch_dict in enumerated:
+            # for j in range(0,len(batch_dict['x_data'])):
+            y_pred = model(x_in=batch_dict['x_data'][:, 0:i])
+
+            # compute the loss
+            loss = sequence_loss(y_pred, batch_dict['y_target'][:, 0:i], mask_index)
+
+            # compute the accuracy
+            running_loss += (loss.item() - running_loss) / (batch_index + 1)
+            acc_t = compute_accuracy(y_pred, batch_dict['y_target'][:, 0:i], mask_index)
+            running_acc += (acc_t - running_acc) / (batch_index + 1)
+        accuracy_character_dict[i] = running_acc
+        perplexity_character_dict[i] = torch.exp(torch.tensor(running_loss)).item()
+    #     print(accuracy_character_dict)
+    for k in perplexity_character_dict.keys():
+        print("Peplexity after looking at ", k, " characters:", perplexity_character_dict[k])
 
     ##############  OVER ENTIRE TEST SET ##############################################
 
     ##############  FOR ONE SURNAME AND UNCOMMENT THIS ##############################################
 
-    obj = SurnameVectorizer(vectorizer.char_vocab, vectorizer.nationality_vocab)
-    from_vect, to_vect = obj.vectorize('Singhrathore', 19)
-    from_vect = from_vect.reshape(19, 1)
-    to_vect = to_vect.reshape(19, 1)
-    from_tensor = torch.from_numpy(from_vect).to(args.device)
-    to_tensor = torch.from_numpy(to_vect).to(args.device)
-    running_acc = 0.
-    # running_loss = 0.
-    perplexity_character_dict = {}
-    accuracy_character_dict = {}
-    # compute the output
-    # enumerated = list(enumerate(batch_generator))
-    for i in range(1, 20):
-        # for batch_index, batch_dict in enumerated:
-        y_pred = model(from_tensor[0:i])
+    # obj = SurnameVectorizer(vectorizer.char_vocab, vectorizer.nationality_vocab)
+    # from_vect, to_vect = obj.vectorize('Singhrathore', 19)
+    # from_vect = from_vect.reshape(19, 1)
+    # to_vect = to_vect.reshape(19, 1)
+    # from_tensor = torch.from_numpy(from_vect).to(args.device)
+    # to_tensor = torch.from_numpy(to_vect).to(args.device)
+    # running_acc = 0.
+    # # running_loss = 0.
+    # perplexity_character_dict = {}
+    # accuracy_character_dict = {}
+    # # compute the output
+    # # enumerated = list(enumerate(batch_generator))
+    # for i in range(1, 20):
+    #     # for batch_index, batch_dict in enumerated:
+    #     y_pred = model(from_tensor[0:i])
 
-        # compute the loss
-        loss = sequence_loss(y_pred, to_tensor[0:i], mask_index)
+    #     # compute the loss
+    #     loss = sequence_loss(y_pred, to_tensor[0:i], mask_index)
 
-        # compute the accuracy
-        running_loss += (loss.item() - running_loss)
+    #     # compute the accuracy
+    #     running_loss += (loss.item() - running_loss)
 
-        acc_t = compute_accuracy(y_pred, to_tensor[0:i], mask_index)
-        running_acc += (acc_t - running_acc)
-        accuracy_character_dict[i] = running_acc
-        perplexity_character_dict[i] = torch.exp(torch.tensor(running_loss)).item()
-    print(accuracy_character_dict)
-    print(perplexity_character_dict)
+    #     acc_t = compute_accuracy(y_pred, to_tensor[0:i], mask_index)
+    #     running_acc += (acc_t - running_acc)
+    #     accuracy_character_dict[i] = running_acc
+    #     perplexity_character_dict[i] = torch.exp(torch.tensor(running_loss)).item()
+    # print(accuracy_character_dict)
+    # print(perplexity_character_dict)
 
     ##############  FOR ONE SURNAME AND UNCOMMENT THIS ##############################################
     # number of names to generate
@@ -341,7 +386,6 @@ def fit_nn(rnn):
     for i in range(num_names):
         print(sampled_surnames[i])
     return perplexity_character_dict, accuracy_character_dict
-
 
 def begin(listRnn):
     ultimate_dict = {}
